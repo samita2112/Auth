@@ -1,5 +1,4 @@
 import 'package:firstapp/models/user.dart';
-import 'package:firstapp/pages/selectlang.dart';
 import 'package:firstapp/pages/signup.dart';
 import 'package:firstapp/services/auth.dart';
 import 'package:flutter/material.dart';
@@ -23,13 +22,6 @@ class _loginState extends State<login> {
   final box = GetStorage();
   @override
   void initState() {
-    if (box.read('lng') == null) {
-      Future(() {
-        Navigator.push(
-            context, MaterialPageRoute(builder: (context) => Selectlang()));
-      });
-    }
-
     super.initState();
   }
 
@@ -56,10 +48,10 @@ class _loginState extends State<login> {
                                 fontFamily: 'Salsa'),
                             children: [
                           TextSpan(
-                              text: "Welcome to".tr,
+                              text: "Welcome to ".tr,
                               style: TextStyle(color: Colors.white)),
                           TextSpan(
-                            text: "plantd".tr,
+                            text: "Stay Updated".tr,
                             style: TextStyle(
                               color: Colors.teal[900],
                             ),
@@ -215,7 +207,7 @@ class _loginState extends State<login> {
                                 width: 20.0,
                               ),
                               label: Text(
-                                "sign in guest".tr,
+                                "sign in as guest".tr,
                                 style: TextStyle(color: Colors.grey),
                               ),
                             ),

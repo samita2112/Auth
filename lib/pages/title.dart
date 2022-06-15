@@ -11,7 +11,6 @@ class title extends StatefulWidget {
 }
 
 class _titleState extends State<title> {
-  final theImage = AssetImage('assets/background.jpeg');
   @override
   void initState() {
     // precacheImage(theImage, context);
@@ -27,16 +26,14 @@ class _titleState extends State<title> {
       body: Container(
         width: MediaQuery.of(context).size.width * 1,
         height: MediaQuery.of(context).size.height * 1,
-        decoration: BoxDecoration(
-            image: DecorationImage(image: theImage, fit: BoxFit.cover)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Plantd',
+              'Stay Updated',
               style: TextStyle(
                 color: Colors.white,
-                fontSize: 102.0,
+                fontSize: 85.0,
                 fontFamily: 'Salsa',
                 letterSpacing: 2.0,
                 fontWeight: FontWeight.w300,
@@ -46,7 +43,7 @@ class _titleState extends State<title> {
               height: 15,
             ),
             Text(
-              'Tomato plant disease detection system',
+              'A News Updating Application',
               style: TextStyle(
                 color: Colors.white,
                 fontSize: 18.0,

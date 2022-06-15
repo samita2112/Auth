@@ -1,8 +1,11 @@
-import 'package:firstapp/services/opt2.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:firstapp/services/auth.dart';
-import 'package:flutter/gestures.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
+import 'package:path/path.dart';
+
 import 'package:get/get.dart';
 
 class signup extends StatefulWidget {
@@ -13,19 +16,48 @@ class signup extends StatefulWidget {
 class _signupState extends State<signup> {
   final AuthService _auth = AuthService();
   final _formkey = GlobalKey<FormState>();
-  //final _otp = FlutterOtp();
-  final _otp2 = Otp2();
+  final picker = ImagePicker();
+  File? _image;
   String name = '';
   String email = '';
   String phone = '';
   String password = '';
   String confirmpassword = '';
   String error = '';
+  String imagepath =
+      'https://images.unsplash.com/photo-1502164980785-f8aa41d53611?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60';
   bool _isObscure = true;
+  bool res = false;
   String otp = "";
+  Future getImage() async {
+    XFile? image = await picker.pickImage(source: ImageSource.gallery);
+
+    setState(() {
+      _image = File(image!.path);
+      print('Image Path $_image');
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    Future uploadPic(BuildContext context) async {
+      String fileName = basename(_image!.path);
+      FirebaseStorage storage = FirebaseStorage.instance;
+      Reference ref = storage.ref().child(fileName);
+      UploadTask uploadTask = ref.putFile(_image!);
+      TaskSnapshot taskSnapshot = await uploadTask.whenComplete(
+        () {
+          setState(() {
+            res = true;
+            print("Profile Picture uploaded");
+            Scaffold.of(context).showSnackBar(
+                SnackBar(content: Text('Profile Picture Uploaded')));
+          });
+        },
+      );
+      return true;
+    }
+
     return SafeArea(
       child: Scaffold(
         resizeToAvoidBottomInset: false,
@@ -84,6 +116,58 @@ class _signupState extends State<signup> {
                     child: Column(
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: <Widget>[
+                        Align(
+                          alignment: Alignment.topLeft,
+                          child: Text("  Profile Photo",
+                              style: TextStyle(
+                                  fontSize: 18.0,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black)),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            CircleAvatar(
+                              radius: 70,
+                              backgroundColor: Colors.teal,
+                              child: ClipOval(
+                                child: new SizedBox(
+                                  width: 130.0,
+                                  height: 130.0,
+                                  child: (_image != null)
+                                      ? Image.file(
+                                          _image!,
+                                          fit: BoxFit.fill,
+                                        )
+                                      : Image.network(
+                                          "https://images.unsplash.com/photo-1502164980785-f8aa41d53611?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=500&q=60",
+                                          fit: BoxFit.fill,
+                                        ),
+                                ),
+                              ),
+                            ),
+                            Padding(
+                              padding: EdgeInsets.only(top: 60.0),
+                              child: IconButton(
+                                icon: Icon(
+                                  Icons.camera,
+                                  size: 30.0,
+                                ),
+                                onPressed: () {
+                                  getImage();
+                                },
+                              ),
+                            ),
+                          ],
+                        ),
+                        ElevatedButton(
+                            onPressed: () {
+                              uploadPic(context);
+                              if (res == true) {
+                                imagepath = _image!.path;
+                              }
+                            },
+                            child: Text("Upload")),
                         Container(
                           margin: EdgeInsets.only(bottom: 30.0, top: 30.0),
                           width: MediaQuery.of(context).size.width * 0.8,
@@ -138,11 +222,6 @@ class _signupState extends State<signup> {
                               setState(() => phone = val);
                             },
                             decoration: InputDecoration(
-                              suffixIcon: TextButton(
-                                  onPressed: () {
-                                    _otp2.verifyPhone(phone);
-                                  },
-                                  child: Text("Send OTP".tr)),
                               enabledBorder: OutlineInputBorder(
                                 borderSide: BorderSide(color: Colors.teal),
                               ),
@@ -151,34 +230,6 @@ class _signupState extends State<signup> {
                                     BorderSide(width: 1, color: Colors.teal),
                               ),
                               labelText: 'Enter Phone no'.tr,
-                              labelStyle: TextStyle(color: Colors.teal),
-                            ),
-                          ),
-                        ),
-                        Container(
-                          margin: EdgeInsets.only(bottom: 30.0),
-                          width: MediaQuery.of(context).size.width * 0.8,
-                          child: TextFormField(
-                            validator: (val) =>
-                                val!.isEmpty ? 'Enter OTP'.tr : null,
-                            onChanged: (val) {
-                              setState(() => otp = val);
-                            },
-                            decoration: InputDecoration(
-                              suffixIcon: TextButton(
-                                onPressed: () {
-                                  _auth.verifyOTP(otp);
-                                },
-                                child: Text("Verify".tr),
-                              ),
-                              enabledBorder: OutlineInputBorder(
-                                borderSide: BorderSide(color: Colors.teal),
-                              ),
-                              focusedBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(width: 1, color: Colors.teal),
-                              ),
-                              labelText: 'Enter OTP'.tr,
                               labelStyle: TextStyle(color: Colors.teal),
                             ),
                           ),
@@ -256,7 +307,7 @@ class _signupState extends State<signup> {
                             onPressed: () async {
                               if (_formkey.currentState!.validate()) {
                                 dynamic result = await _auth.register(
-                                    email, password, name, phone);
+                                    email, password, name, phone, imagepath);
                                 if (result == null) {
                                   setState(() =>
                                       error = 'Please enter a valid Email Id');

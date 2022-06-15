@@ -53,38 +53,21 @@ class AuthService {
     }
   }
 
-  void verifyPhone(phoneNumber) async {
-    _auth.verifyPhoneNumber(
-      phoneNumber: phoneNumber,
-      verificationCompleted: (PhoneAuthCredential credential) async {
-        print("otp sent");
-      },
-      verificationFailed: (FirebaseAuthException e) {
-        print(e.message);
-      },
-      codeSent: (String verificationId, int? resendToken) {
-        verificationID = verificationId;
-      },
-      codeAutoRetrievalTimeout: (String verificationId) {},
-    );
-  }
-
-  void verifyOTP(otp) async {
-    PhoneAuthCredential credential = PhoneAuthProvider.credential(
-        verificationId: verificationID, smsCode: otp);
-    print(credential);
-  }
-
   //register
-  Future register(
-      String email, String password, String name, String phone) async {
+  Future register(String email, String password, String name, String phone,
+      String url) async {
     try {
       UserCredential result = await _auth.createUserWithEmailAndPassword(
           email: email, password: password);
       User? user = result.user;
 
-      final new_user = await db.collection('users').doc(user!.uid).set(
-          {"Name": name, "Email": email, "Password": password, "Phone": phone});
+      final new_user = await db.collection('users').doc(user!.uid).set({
+        "Name": name,
+        "Email": email,
+        "Password": password,
+        "Phone": phone,
+        "url": url
+      });
 
       return _userFromFirebaseUser(user);
     } catch (e) {

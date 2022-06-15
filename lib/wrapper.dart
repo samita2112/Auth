@@ -1,12 +1,9 @@
-import 'package:firstapp/pages/plantList.dart';
-import 'package:firstapp/pages/selectlang.dart';
-import 'package:firstapp/pages/selectplants.dart';
 import 'package:flutter/material.dart';
 import 'package:firstapp/pages/home.dart';
-import 'package:firstapp/pages/previous_reports.dart';
+
 import 'package:firstapp/pages/title.dart';
 import 'package:firstapp/pages/login.dart';
-import 'package:firstapp/pages/report.dart';
+
 import 'package:firstapp/pages/signup.dart';
 import 'package:provider/provider.dart';
 import 'package:firstapp/models/user.dart';
